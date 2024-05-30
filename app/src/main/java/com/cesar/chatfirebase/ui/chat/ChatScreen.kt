@@ -87,6 +87,10 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
         mutableStateOf<Boolean>(false)
     }
 
+    var online by remember {
+        mutableStateOf("")
+    }
+
     LaunchedEffect(Unit){
         viewModel.changeUserId("",user.id?:"")
         viewModel.getListMessage()
@@ -120,6 +124,13 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                         viewModel.updateListMessages(it.listMessage!!)
                     }
                     viewModel.getMessage()
+                    viewModel.getOnlineByUser()
+                }
+
+                is ChatUiState.SuccessGetOnlineByUser ->{
+                    it.online?.let { it1 ->
+                        online= it1
+                    }
                 }
             }
         }
@@ -172,9 +183,20 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
 
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = user.name?:""
-                        )
+                        Column {
+                            Text(
+                                text = user.name?:"",
+                                style = TextStyle(fontSize = 22.sp)
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            if (online.isNotEmpty()){
+                                Text(
+                                    text = if (online=="true") {"En Linea"}else{"Desconectado"},
+                                    style = TextStyle(fontSize = 14.sp)
+                                )
+                            }
+                        }
+
                     }
 
                 },
@@ -281,11 +303,13 @@ fun ItemMessage(message: Message){
 
                 if (message.fromUserId.equals((LocalContext.current as MainActivity).firebaseAuth.uid)){
                     Surface(
-                        modifier = Modifier.constrainAs(layout1){
-                            top.linkTo(parent.top)
-                            end.linkTo(parent.end)
-                            width= Dimension.fillToConstraints
-                        }.padding(start = 50.dp),
+                        modifier = Modifier
+                            .constrainAs(layout1) {
+                                top.linkTo(parent.top)
+                                end.linkTo(parent.end)
+                                width = Dimension.fillToConstraints
+                            }
+                            .padding(start = 50.dp),
                         shape = RoundedCornerShape(10.dp,),
                         color = Color(android.graphics.Color.parseColor("#6EAA5E"))
                     ) {
@@ -315,11 +339,13 @@ fun ItemMessage(message: Message){
                     }
                 }else{
                     Surface(
-                        modifier = Modifier.constrainAs(layout2){
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                            width= Dimension.fillToConstraints
-                        }.padding(end = 50.dp),
+                        modifier = Modifier
+                            .constrainAs(layout2) {
+                                top.linkTo(parent.top)
+                                start.linkTo(parent.start)
+                                width = Dimension.fillToConstraints
+                            }
+                            .padding(end = 50.dp),
                         shape = RoundedCornerShape(10.dp,),
                         color = Color(android.graphics.Color.parseColor("#1A5276"))
                     ) {

@@ -10,6 +10,8 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.cesar.chatfirebase.ui.navigation.SetupNavGraph
 import com.cesar.chatfirebase.ui.theme.ChatFirebaseTheme
+import com.cesar.chatfirebase.viewModel.EditUserViewModel
+import com.cesar.chatfirebase.viewModel.LoginViewModel
 import com.cesar.domain.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
 
     val firebaseAuth: FirebaseAuth by inject()
     private val preferences: SharedPreferences by inject()
+    private val viewModel: EditUserViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +35,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun getUser():User{
-       return Gson().fromJson(preferences.getString("USER",""), User::class.java)
+    fun getUser():User?{
+        if (preferences.getString("USER","")?.isNotEmpty() == true){
+            return Gson().fromJson(preferences.getString("USER",""), User::class.java)
+        }else{
+            return null
+        }
     }
 
 
@@ -50,6 +57,29 @@ class MainActivity : ComponentActivity() {
             }
         }else{
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateOnline(true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateOnline(false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        updateOnline(false)
+    }
+
+     fun updateOnline(online:Boolean){
+        if (getUser()!=null){
+            val user = getUser()
+            user!!.online=online
+            viewModel.editOnline(user)
         }
     }
 }

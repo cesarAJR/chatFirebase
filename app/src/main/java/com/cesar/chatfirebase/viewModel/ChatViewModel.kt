@@ -12,6 +12,7 @@ import com.cesar.domain.model.Message
 import com.cesar.domain.useCase.chat.IChatUserCase
 import com.cesar.domain.useCase.getListMessage.IGetListMessageCase
 import com.cesar.domain.useCase.getMessage.IGetMessageCase
+import com.cesar.domain.useCase.getOnlineByUser.IGetOnlineByUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class ChatViewModel(private val chatUserCase: IChatUserCase,
                     private val getMessageCase: IGetMessageCase,
                     private val getListMessageCase: IGetListMessageCase,
+                    private val getOnlineByUser: IGetOnlineByUser,
 ):ViewModel() {
     private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Nothing)
     val uiState: StateFlow<ChatUiState> = _uiState
@@ -87,6 +89,18 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
                     if (r.message!=null) _uiState.value = ChatUiState.Error(r.message!!)
                     else {
                         _uiState.value = ChatUiState.SuccessGetListMessage(r.data)
+                    }
+                }
+        }
+    }
+
+    fun getOnlineByUser(){
+        viewModelScope.launch(Dispatchers.IO) {
+            getOnlineByUser.execute(stateElements.toUserId)
+                .collect { r ->
+                    if (r.message!=null) _uiState.value = ChatUiState.Nothing
+                    else {
+                        _uiState.value = ChatUiState.SuccessGetOnlineByUser(r.data)
                     }
                 }
         }

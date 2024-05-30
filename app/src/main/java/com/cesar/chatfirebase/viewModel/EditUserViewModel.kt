@@ -55,4 +55,14 @@ class EditUserViewModel(private val editUserCase: IEditUserCase): ViewModel() {
                 }
         }
     }
+
+    fun editOnline(user: User){
+        viewModelScope.launch(Dispatchers.IO) {
+            editUserCase.execute(stateElements.photoPath,user)
+                .collect { r ->
+                    if (r.message!=null) _uiState.value = EditUserUiState.Error(r.message!!)
+                    else _uiState.value = EditUserUiState.Success(r.data)
+                }
+        }
+    }
 }

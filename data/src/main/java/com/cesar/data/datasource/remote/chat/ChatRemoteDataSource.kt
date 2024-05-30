@@ -184,4 +184,25 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
             mutableListOf()
         }
     }
+
+    override suspend fun getOnlineByUser(
+        userId: String,
+        flow: MutableStateFlow<String>
+    ): StateFlow<String> {
+        val query = firebaseBD.collection("users")
+            .document(userId)
+
+        query.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+               flow.value = snapshot.data?.get("online").toString()
+            } else {
+            }
+        }
+        return flow
+    }
+
 }

@@ -96,11 +96,11 @@ fun EditUserScreen(viewModel: EditUserViewModel = koinViewModel(),navController:
 
     LaunchedEffect(Unit){
         var uri: Uri?=null
-        viewModel.changeUser(user)
+        viewModel.changeUser(user!!)
         if(user.photoUrl!=null && user.photoUrl != "null"){
             uri = Uri.parse(user.photoUrl)
         }
-        viewModel.changeData(uri,user.name?:"")
+        viewModel.changeData(uri, user.name?:"")
     }
 
     LaunchedEffect(Unit) {

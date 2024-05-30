@@ -12,4 +12,6 @@ interface IChatRemoteDataSource {
     suspend fun sendMessage(fromUserId: String, toUserId: String,message:String):String
     suspend fun getMessage(toUserId:String,flow:MutableStateFlow<Message>): StateFlow<Message>
     suspend fun getListMessage(toUserId:String): MutableList<Message>?
+
+    suspend fun getOnlineByUser(userId: String, flow: MutableStateFlow<String>): StateFlow<String>
 }

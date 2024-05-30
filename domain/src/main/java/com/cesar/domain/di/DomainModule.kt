@@ -7,6 +7,8 @@ import com.cesar.domain.useCase.getListMessage.GetListMessageCase
 import com.cesar.domain.useCase.getListMessage.IGetListMessageCase
 import com.cesar.domain.useCase.getMessage.GetMessageCase
 import com.cesar.domain.useCase.getMessage.IGetMessageCase
+import com.cesar.domain.useCase.getOnlineByUser.GetOnlineByUser
+import com.cesar.domain.useCase.getOnlineByUser.IGetOnlineByUser
 import com.cesar.domain.useCase.loginGoogle.ILoginGoogleCase
 import com.cesar.domain.useCase.loginGoogle.LoginGoogleCase
 import com.cesar.domain.useCase.logout.ILogoutCase
@@ -30,5 +32,6 @@ val domainModule = module {
     factory <ILoginGoogleCase>{ LoginGoogleCase(get())}
     factory <IGetListMessageCase>{ GetListMessageCase(get())}
     factory <IEditUserCase>{ EditUserCase(get())}
+    factory <IGetOnlineByUser>{ GetOnlineByUser(get())}
 }
 

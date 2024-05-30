@@ -16,7 +16,7 @@ val appModule = module {
     viewModel { LoginViewModel(get(),get()) }
     viewModel { RegisterViewModel(get(),get()) }
     viewModel { UserListViewModel(get(),get()) }
-    viewModel { ChatViewModel(get(),get(),get()) }
+    viewModel { ChatViewModel(get(),get(),get(),get()) }
     viewModel { EditUserViewModel(get()) }
 }
 

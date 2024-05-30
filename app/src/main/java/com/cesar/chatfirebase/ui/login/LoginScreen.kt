@@ -60,7 +60,8 @@ import org.koin.androidx.compose.koinViewModel
 fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->Unit, onUserList:()->Unit) {
     val stateElements = viewModel.stateElements
     val context = LocalContext.current
-    (LocalContext.current as MainActivity).softInputUnspecified()
+    val activity = (LocalContext.current as MainActivity)
+    activity.softInputUnspecified()
     val signInRequestCode = 1
     val user by remember {
         mutableStateOf("")
@@ -307,6 +308,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->
                         loading = true
                     }
                     is LoginUiState.Success -> {
+                        activity.updateOnline(true)
                         onUserList()
                         loading = false
                         viewModel.cleanData()
@@ -316,6 +318,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->
                     }
 
                     is LoginUiState.SuccessLoginGoogle -> {
+                        activity.updateOnline(true)
                          onUserList()
                         loading = false
                         viewModel.cleanData()
