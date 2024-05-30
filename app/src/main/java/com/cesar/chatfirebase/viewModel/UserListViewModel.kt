@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cesar.chatfirebase.ui.login.LoginElements
-import com.cesar.chatfirebase.ui.userList.UserListElements
-import com.cesar.chatfirebase.ui.userList.UserListUiState
+import com.cesar.chatfirebase.presentation.login.LoginElements
+import com.cesar.chatfirebase.presentation.userList.UserListElements
+import com.cesar.chatfirebase.presentation.userList.UserListUiState
 import com.cesar.domain.model.User
 import com.cesar.domain.useCase.logout.ILogoutCase
 import com.cesar.domain.useCase.userList.IUserListCase

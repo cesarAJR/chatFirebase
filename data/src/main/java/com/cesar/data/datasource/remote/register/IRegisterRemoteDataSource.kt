@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 interface IRegisterRemoteDataSource {
     suspend fun register(email: String, password: String,name:String): Flow<Result<String>>
     suspend fun registerBD(email: String, name: String,id:String,flow: MutableStateFlow<String>): StateFlow<String>
-    suspend fun editUser(user: User,flow: MutableStateFlow<String>): StateFlow<String>
+    suspend fun editUser(user: User,flow: MutableStateFlow<String>?): StateFlow<String>
     suspend fun uploadPhoto(photoPath: String,flow: MutableStateFlow<String>): StateFlow<String>
     suspend fun validateEmailInBD(email:String): User?
 }

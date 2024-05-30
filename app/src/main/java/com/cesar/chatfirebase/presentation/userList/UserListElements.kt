@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.userList
+package com.cesar.chatfirebase.presentation.userList
 
 import com.cesar.domain.model.User
 

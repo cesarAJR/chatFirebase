@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.userList
+package com.cesar.chatfirebase.presentation.userList
 
 import android.content.Context
 import android.net.Uri

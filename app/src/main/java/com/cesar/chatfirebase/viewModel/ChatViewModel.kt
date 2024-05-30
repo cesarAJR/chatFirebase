@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cesar.chatfirebase.ui.chat.ChatElements
-import com.cesar.chatfirebase.ui.chat.ChatUiState
+import com.cesar.chatfirebase.presentation.chat.ChatElements
+import com.cesar.chatfirebase.presentation.chat.ChatUiState
 import com.cesar.domain.model.Message
 import com.cesar.domain.useCase.chat.IChatUserCase
 import com.cesar.domain.useCase.getListMessage.IGetListMessageCase
@@ -98,7 +98,7 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
         viewModelScope.launch(Dispatchers.IO) {
             getOnlineByUser.execute(stateElements.toUserId)
                 .collect { r ->
-                    if (r.message!=null) _uiState.value = ChatUiState.Nothing
+                    if (r.message!=null && r.message!!.isNotEmpty()) _uiState.value = ChatUiState.Nothing
                     else {
                         _uiState.value = ChatUiState.SuccessGetOnlineByUser(r.data)
                     }

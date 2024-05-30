@@ -31,6 +31,9 @@ class UserRepository (private val loginRemoteDataSource: ILoginRemoteDataSource,
     override suspend fun logout(): Flow<Result<String>> = flow{
         val result = loginRemoteDataSource.logout()
         if (result.equals("1")){
+            val user = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java)
+            user.online=false
+            registerRemoteDataSource.editUser(user,null)
             sharedPreferences.edit().putString("USER",null).apply()
             emit(Result.Successfull("Se cerro sesión"))
         }else{

@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.editUser
+package com.cesar.chatfirebase.presentation.editUser
 
 import com.cesar.domain.model.User
 

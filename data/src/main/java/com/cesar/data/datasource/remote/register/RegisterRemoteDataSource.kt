@@ -22,7 +22,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.io.File
 
-class RegisterRemoteDataSource(private val auth: FirebaseAuth,private val firebaseBD: FirebaseFirestore,private val firebaseStorage: FirebaseStorage,private val sharedPreferences: SharedPreferences):IRegisterRemoteDataSource {
+class RegisterRemoteDataSource(
+    private val auth: FirebaseAuth,
+    private val firebaseBD: FirebaseFirestore,
+    private val firebaseStorage: FirebaseStorage,
+    private val sharedPreferences: SharedPreferences):IRegisterRemoteDataSource {
     private val message = MutableStateFlow("")
     override suspend fun register(email: String, password: String,name:String): Flow<Result<String>> = flow {
         val result = auth.createUserWithEmailAndPassword(email,password).await()
@@ -67,15 +71,16 @@ class RegisterRemoteDataSource(private val auth: FirebaseAuth,private val fireba
         return flow
     }
 
-    override suspend fun editUser(user: User, flow: MutableStateFlow<String>): StateFlow<String> {
+    override suspend fun editUser(user: User, flow: MutableStateFlow<String>?): StateFlow<String> {
             firebaseBD.collection("users").document(user.id!!).set(user)
                 .addOnSuccessListener {
                     sharedPreferences.edit().putString("USER", Gson().toJson(user)).apply()
-                flow.value="1"
+                flow?.value="1"
             }.addOnFailureListener {
-                    flow.value="0"
+                    flow?.value="0"
                 }
-        return flow
+
+        return flow?: MutableStateFlow("")
     }
 
     override suspend fun uploadPhoto(photoPath: String,flow: MutableStateFlow<String>): StateFlow<String> {

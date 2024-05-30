@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.navigation
+package com.cesar.chatfirebase.presentation.navigation
 
 sealed class Screen(val route:String) {
     object Login: Screen("login_screen")

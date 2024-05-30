@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.chat
+package com.cesar.chatfirebase.presentation.chat
 
 import com.cesar.domain.model.Message
 import com.google.firebase.firestore.QuerySnapshot

@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.register
+package com.cesar.chatfirebase.presentation.register
 
 data class RegisterElements (
     val user:String="",

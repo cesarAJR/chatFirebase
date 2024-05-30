@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.login
+package com.cesar.chatfirebase.presentation.login
 
 import com.cesar.domain.model.User
 

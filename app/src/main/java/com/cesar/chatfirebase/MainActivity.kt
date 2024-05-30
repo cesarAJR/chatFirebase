@@ -8,7 +8,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
-import com.cesar.chatfirebase.ui.navigation.SetupNavGraph
+import com.cesar.chatfirebase.presentation.navigation.SetupNavGraph
 import com.cesar.chatfirebase.ui.theme.ChatFirebaseTheme
 import com.cesar.chatfirebase.viewModel.EditUserViewModel
 import com.cesar.chatfirebase.viewModel.LoginViewModel

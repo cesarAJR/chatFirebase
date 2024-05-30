@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cesar.chatfirebase.ui.chat.ChatUiState
-import com.cesar.chatfirebase.ui.editUser.EditUserElements
-import com.cesar.chatfirebase.ui.editUser.EditUserUiState
+import com.cesar.chatfirebase.presentation.chat.ChatUiState
+import com.cesar.chatfirebase.presentation.editUser.EditUserElements
+import com.cesar.chatfirebase.presentation.editUser.EditUserUiState
 import com.cesar.domain.model.User
 import com.cesar.domain.useCase.editUser.IEditUserCase
 import kotlinx.coroutines.Dispatchers

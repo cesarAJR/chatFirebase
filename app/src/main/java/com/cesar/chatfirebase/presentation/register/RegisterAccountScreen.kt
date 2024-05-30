@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.register
+package com.cesar.chatfirebase.presentation.register
 
 import android.util.Log
 import android.widget.Toast
@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cesar.chatfirebase.MainActivity
 import com.cesar.chatfirebase.R
-import com.cesar.chatfirebase.ui.login.LoginUiState
+import com.cesar.chatfirebase.presentation.login.LoginUiState
 import com.cesar.chatfirebase.viewModel.RegisterViewModel
 import com.example.prueba_softtek.component.DialogLoading
 import com.google.firebase.Firebase

@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.navigation
+package com.cesar.chatfirebase.presentation.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -6,12 +6,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.cesar.chatfirebase.ui.camera.CameraScreen
-import com.cesar.chatfirebase.ui.chat.ChatScreen
-import com.cesar.chatfirebase.ui.editUser.EditUserScreen
-import com.cesar.chatfirebase.ui.login.LoginScreen
-import com.cesar.chatfirebase.ui.register.RegisterAccountScreen
-import com.cesar.chatfirebase.ui.userList.UserListScreen
+import com.cesar.chatfirebase.presentation.camera.CameraScreen
+import com.cesar.chatfirebase.presentation.chat.ChatScreen
+import com.cesar.chatfirebase.presentation.editUser.EditUserScreen
+import com.cesar.chatfirebase.presentation.login.LoginScreen
+import com.cesar.chatfirebase.presentation.register.RegisterAccountScreen
+import com.cesar.chatfirebase.presentation.userList.UserListScreen
 import com.cesar.chatfirebase.util.enterTransition
 import com.cesar.chatfirebase.util.exitTransition
 import com.cesar.chatfirebase.util.popEnterTransition

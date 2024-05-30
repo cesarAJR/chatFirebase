@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.camera
+package com.cesar.chatfirebase.presentation.camera
 
 import android.net.Uri
 import android.widget.Toast

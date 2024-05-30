@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.login
+package com.cesar.chatfirebase.presentation.login
 
 data class LoginState (
     val error:String?=null,

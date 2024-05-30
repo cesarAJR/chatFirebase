@@ -1,4 +1,4 @@
-package com.cesar.chatfirebase.ui.chat
+package com.cesar.chatfirebase.presentation.chat
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -63,9 +63,9 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.cesar.chatfirebase.MainActivity
 import com.cesar.chatfirebase.R
-import com.cesar.chatfirebase.ui.login.LoginUiState
+import com.cesar.chatfirebase.presentation.login.LoginUiState
 import com.cesar.chatfirebase.ui.theme.green
-import com.cesar.chatfirebase.ui.userList.ItemUser
+import com.cesar.chatfirebase.presentation.userList.ItemUser
 import com.cesar.chatfirebase.viewModel.ChatViewModel
 import com.cesar.domain.model.Message
 import com.cesar.domain.model.User
@@ -97,16 +97,23 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
     }
 
     LaunchedEffect(Unit){
+       viewModel.getOnlineByUser()
+    }
+
+
+    LaunchedEffect(Unit){
         viewModel.uiState.collect{
             when(it){
                 is ChatUiState.Error -> {
+
                     loading =  false
                 }
                 is ChatUiState.Loading -> {
+
                     loading =  true
                 }
                 is ChatUiState.Success -> {
-//                    viewModel.changeMessage("")
+
                 }
                 is ChatUiState.Nothing -> {
 
@@ -124,7 +131,6 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                         viewModel.updateListMessages(it.listMessage!!)
                     }
                     viewModel.getMessage()
-                    viewModel.getOnlineByUser()
                 }
 
                 is ChatUiState.SuccessGetOnlineByUser ->{
@@ -217,23 +223,6 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                 Modifier.fillMaxWidth()
             ) {
                 val (layout,lazyColumn) = createRefs()
-                LazyColumn(
-                    contentPadding = PaddingValues(8.dp),
-                    modifier = Modifier.constrainAs(lazyColumn){
-                        bottom.linkTo(layout.top)
-                        top.linkTo(parent.top)
-                        end.linkTo(parent.end)
-                        start.linkTo(parent.start)
-                        width= Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    }
-                ) {
-                    stateElements.messages?.let {messages->
-                        items(messages){message->
-                            ItemMessage(message)
-                        }
-                    }
-                }
                 ConstraintLayout(
                     Modifier
                         .constrainAs(layout) {
@@ -242,7 +231,7 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                             end.linkTo(parent.end)
                             width = Dimension.fillToConstraints
                         }
-                        .padding(vertical = 5.dp, horizontal = 5.dp)
+                        .padding(vertical = 10.dp, horizontal = 5.dp)
                 ) {
                     val (textField,icon) = createRefs()
                     OutlinedTextField(
@@ -265,7 +254,7 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                     )
                     IconButton(
                         onClick = {
-                                viewModel.sendMessage()
+                            viewModel.sendMessage()
                             keyboardController?.hide()
                         },
                         modifier =Modifier.constrainAs(icon){
@@ -284,10 +273,26 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                                 .clip(CircleShape)
                                 .background(green)
                         )
-
-//                        Image(imageVector = Icons.Sharp.KeyboardArrowLeft, contentDescription = "" )
                     }
                 }
+
+                LazyColumn(
+                    modifier = Modifier.constrainAs(lazyColumn){
+                        bottom.linkTo(layout.top)
+                        top.linkTo(parent.top)
+                        end.linkTo(parent.end)
+                        start.linkTo(parent.start)
+                        width= Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    }.padding(top = 10.dp, start = 10.dp, end = 10.dp)
+                ) {
+                    stateElements.messages?.let {messages->
+                        items(messages){message->
+                            ItemMessage(message)
+                        }
+                    }
+                }
+
             }
         }
     }
