@@ -1,14 +1,7 @@
 package com.cesar.chatfirebase.ui.login
 
-import android.app.Activity
-import android.content.Context
-import android.content.SharedPreferences
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,20 +52,12 @@ import com.cesar.chatfirebase.util.getGoogleLoginAuth
 import com.cesar.chatfirebase.viewModel.LoginViewModel
 import com.cesar.domain.model.User
 import com.example.prueba_softtek.component.DialogLoading
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.ApiException
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import org.koin.androidx.compose.koinViewModel
-import org.koin.java.KoinJavaComponent.inject
-import java.io.Serializable
-import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->Unit, onUserList:(User)->Unit) {
+fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->Unit, onUserList:()->Unit) {
     val stateElements = viewModel.stateElements
     val context = LocalContext.current
     (LocalContext.current as MainActivity).softInputUnspecified()
@@ -322,7 +307,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->
                         loading = true
                     }
                     is LoginUiState.Success -> {
-                        it.user?.let { it1 -> onUserList(it1) }
+                        onUserList()
                         loading = false
                         viewModel.cleanData()
                     }
@@ -331,7 +316,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->
                     }
 
                     is LoginUiState.SuccessLoginGoogle -> {
-                        it.user?.let { it1 -> onUserList(it1) }
+                         onUserList()
                         loading = false
                         viewModel.cleanData()
                     }

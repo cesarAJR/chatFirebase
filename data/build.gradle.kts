@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -49,5 +50,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
 
     testImplementation (libs.koin.test.junit4)
+    implementation(libs.converter.gson)
 
 }

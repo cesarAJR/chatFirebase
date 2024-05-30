@@ -6,8 +6,8 @@ import com.example.domain.core.Result
 
 interface IUserRepository {
 
-    suspend fun login(email:String,password:String):Flow<Result<User>>
+    suspend fun login(email:String,password:String):Flow<Result<String>>
     suspend fun logout():Flow<Result<String>>
-    suspend fun loginGoogle(token:String):Flow<Result<User>>
+    suspend fun loginGoogle(token:String):Flow<Result<String>>
 
 }

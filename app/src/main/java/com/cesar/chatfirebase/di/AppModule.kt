@@ -3,6 +3,7 @@ package com.cesar.chatfirebase.di
 import android.content.Context
 import android.content.SharedPreferences
 import com.cesar.chatfirebase.viewModel.ChatViewModel
+import com.cesar.chatfirebase.viewModel.EditUserViewModel
 import com.cesar.chatfirebase.viewModel.LoginViewModel
 import com.cesar.chatfirebase.viewModel.RegisterViewModel
 import com.cesar.chatfirebase.viewModel.UserListViewModel
@@ -16,5 +17,6 @@ val appModule = module {
     viewModel { RegisterViewModel(get(),get()) }
     viewModel { UserListViewModel(get(),get()) }
     viewModel { ChatViewModel(get(),get(),get()) }
+    viewModel { EditUserViewModel(get()) }
 }
 

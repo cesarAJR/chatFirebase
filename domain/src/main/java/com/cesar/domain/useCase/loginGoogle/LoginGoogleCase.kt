@@ -6,7 +6,7 @@ import com.example.domain.core.Result
 import kotlinx.coroutines.flow.Flow
 
 class LoginGoogleCase(private val repository: IUserRepository) : ILoginGoogleCase {
-    override suspend fun execute(token: String): Flow<Result<User>> {
+    override suspend fun execute(token: String): Flow<Result<String>> {
         return repository.loginGoogle(token)
     }
 }

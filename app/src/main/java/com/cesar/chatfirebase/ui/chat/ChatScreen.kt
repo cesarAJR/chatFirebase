@@ -2,6 +2,7 @@ package com.cesar.chatfirebase.ui.chat
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -58,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.cesar.chatfirebase.MainActivity
 import com.cesar.chatfirebase.R
 import com.cesar.chatfirebase.ui.login.LoginUiState
@@ -78,6 +81,7 @@ import org.koin.androidx.compose.koinViewModel
 fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()->Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val stateElements = viewModel.stateElements
+    val context =  LocalContext.current
     (LocalContext.current as MainActivity).softInputResize()
     var loading by remember {
         mutableStateOf<Boolean>(false)
@@ -143,8 +147,22 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        var painter = painterResource(R.drawable.baseline_person_24)
+
+                        if (user.photoUrl!=null && user.photoUrl!="null" && user.photoUrl!!.isNotEmpty()){
+                            val replaceString = user.photoUrl!!.substringAfterLast("/o/").replace("/","%2F")
+                            val url =  "${user.photoUrl!!.substringBeforeLast("/o/")}/o/${replaceString}"
+                            user.photoUrl = url
+                            painter = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(context)
+                                    .data(Uri.parse(user.photoUrl))
+                                    .placeholder(R.drawable.baseline_person_24)
+                                    .build()
+                            )
+                        }
+
                         Image(
-                            painter = painterResource(R.drawable.ic_logo_user),
+                            painter = painter,
                             contentDescription = "logo",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -267,7 +285,7 @@ fun ItemMessage(message: Message){
                             top.linkTo(parent.top)
                             end.linkTo(parent.end)
                             width= Dimension.fillToConstraints
-                        },
+                        }.padding(start = 50.dp),
                         shape = RoundedCornerShape(10.dp,),
                         color = Color(android.graphics.Color.parseColor("#6EAA5E"))
                     ) {
@@ -301,7 +319,7 @@ fun ItemMessage(message: Message){
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                             width= Dimension.fillToConstraints
-                        },
+                        }.padding(end = 50.dp),
                         shape = RoundedCornerShape(10.dp,),
                         color = Color(android.graphics.Color.parseColor("#1A5276"))
                     ) {

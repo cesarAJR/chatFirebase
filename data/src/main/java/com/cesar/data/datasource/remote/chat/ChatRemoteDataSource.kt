@@ -5,12 +5,14 @@ import android.util.Log
 import com.cesar.data.datasource.remote.chat.IChatRemoteDataSource
 import com.cesar.data.remote.model.toMessageList
 import com.cesar.domain.model.Message
+import com.cesar.domain.model.User
 import com.example.domain.core.Result
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.snapshots
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,8 +24,6 @@ import java.util.UUID
 import kotlin.math.log
 
 class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val sharedPreferences: SharedPreferences):IChatRemoteDataSource {
-
-
     override suspend fun sendMessage(
         fromUserId: String,
         toUserId: String,
@@ -37,7 +37,7 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
 
 
 
-        val from = sharedPreferences.getString("USER_ID","")
+        val from = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java).id
 
         val data = hashMapOf(
             "fromUserId" to from,
@@ -93,7 +93,7 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
         flow: MutableStateFlow<Message>
     ): StateFlow<Message> {
 
-        val from = sharedPreferences.getString("USER_ID","")
+    val from = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java).id
 
       val queryToFrom = firebaseBD.collection("messages")
             .document("$toUserId-$from")
@@ -151,7 +151,7 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
     }
 
     override suspend fun getListMessage(toUserId: String): MutableList<Message> {
-        val from = sharedPreferences.getString("USER_ID","")
+        val from = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java).id
 
         var docRef:Query?=null
 

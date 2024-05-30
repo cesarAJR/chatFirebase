@@ -10,6 +10,8 @@ fun QuerySnapshot.toUserList() :List<User> = map {
         id = it.data.get("id").toString(),
         email = it.data.get("email").toString(),
         name = it.data.get("name").toString(),
+        photoUrl = it.data.get("photoUrl").toString(),
+        online = it.data.get("online").toString().toBoolean(),
     )
 }
 

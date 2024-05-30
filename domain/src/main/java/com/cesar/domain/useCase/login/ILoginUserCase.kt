@@ -5,5 +5,5 @@ import com.example.domain.core.Result
 import kotlinx.coroutines.flow.Flow
 
 interface ILoginUserCase {
-    suspend fun execute(email:String, password:String): Flow<Result<User>>
+    suspend fun execute(email:String, password:String): Flow<Result<String>>
 }

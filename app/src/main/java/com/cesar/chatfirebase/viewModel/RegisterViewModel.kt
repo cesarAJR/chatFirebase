@@ -1,5 +1,6 @@
 package com.cesar.chatfirebase.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ class RegisterViewModel(private val registerUserCase: IRegisterUserCase,private 
                 .collect { r ->
                     if (r.message!=null) _uiState.value = RegisterUiState.Error(r.message!!)
                     else _uiState.value = RegisterUiState.Success(r.data)
+
                 }
         }
     }
@@ -53,6 +55,7 @@ class RegisterViewModel(private val registerUserCase: IRegisterUserCase,private 
                 .collect { r ->
                     if (r.message!=null) _uiState.value = RegisterUiState.Error(r.message!!)
                     else _uiState.value = RegisterUiState.SuccessLogin(r.data)
+
                 }
         }
     }

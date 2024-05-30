@@ -1,15 +1,14 @@
 package com.cesar.chatfirebase.ui.navigation
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.cesar.chatfirebase.ui.camera.CameraScreen
 import com.cesar.chatfirebase.ui.chat.ChatScreen
+import com.cesar.chatfirebase.ui.editUser.EditUserScreen
 import com.cesar.chatfirebase.ui.login.LoginScreen
 import com.cesar.chatfirebase.ui.register.RegisterAccountScreen
 import com.cesar.chatfirebase.ui.userList.UserListScreen
@@ -79,6 +78,9 @@ fun SetupNavGraph(navController: NavHostController,isLogged : Boolean) {
                 },
                 onLogin = {
                     navController.navigate(Screen.Login.route)
+                },
+                onSetting = {
+                    navController.navigate(Screen.Setting.route)
                 }
             )
         }
@@ -100,6 +102,39 @@ fun SetupNavGraph(navController: NavHostController,isLogged : Boolean) {
                 user = user,
                 onUserList = {
                     navController.navigateUp()
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Setting.route,
+            enterTransition = { enterTransition(this) },
+            exitTransition = { exitTransition(this) },
+            popEnterTransition = {popEnterTransition(this)}
+        ) {
+            EditUserScreen(
+                navController = navController,
+                onList = {
+                    navController.navigateUp()
+                },
+                onCamera = {
+                    navController.navigate(Screen.Camera.route)
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Camera.route,
+            enterTransition = { enterTransition(this) },
+            exitTransition = { exitTransition(this) },
+            popEnterTransition = {popEnterTransition(this)}
+        ) {
+            CameraScreen(
+                onEditUser = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("PHOTO_URI", it)
+                    navController.popBackStack()
                 }
             )
         }

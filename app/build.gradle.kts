@@ -63,7 +63,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
@@ -82,9 +81,20 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
     implementation (libs.androidx.constraintlayout.compose)
     implementation(libs.converter.gson)
 
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+
+    val cameraxVersion = "1.3.3"
+    implementation ("androidx.camera:camera-core:${cameraxVersion}")
+    implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation ("androidx.camera:camera-view:${cameraxVersion}")
+    implementation ("androidx.camera:camera-lifecycle:$cameraxVersion")
+
+    implementation(libs.coil.compose)
+    implementation ("com.google.guava:guava:31.0.1-android")
+    implementation("androidx.compose.material3:material3:1.2.1")
 }

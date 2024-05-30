@@ -1,6 +1,8 @@
 package com.example.data.di
 
 import com.cesar.domain.useCase.chat.IChatUserCase
+import com.cesar.domain.useCase.editUser.EditUserCase
+import com.cesar.domain.useCase.editUser.IEditUserCase
 import com.cesar.domain.useCase.getListMessage.GetListMessageCase
 import com.cesar.domain.useCase.getListMessage.IGetListMessageCase
 import com.cesar.domain.useCase.getMessage.GetMessageCase
@@ -27,5 +29,6 @@ val domainModule = module {
     factory <ILogoutCase>{ LogoutCase(get())}
     factory <ILoginGoogleCase>{ LoginGoogleCase(get())}
     factory <IGetListMessageCase>{ GetListMessageCase(get())}
+    factory <IEditUserCase>{ EditUserCase(get())}
 }
 

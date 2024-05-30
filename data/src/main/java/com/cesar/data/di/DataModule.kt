@@ -24,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -31,14 +33,19 @@ val dataModule = module {
     single { provideSharePreferences(androidContext())  }
     single { provideFirebase()}
     single { provideFirebaseBD()}
+    single { provideFirebaseStorage()}
     factory<ILoginRemoteDataSource> { LoginRemoteDataSource(get()) }
-    factory<IRegisterRemoteDataSource> { RegisterRemoteDataSource(get(),get()) }
+    factory<IRegisterRemoteDataSource> { RegisterRemoteDataSource(get(),get(),get(),get()) }
     factory<IUserListRemoteDataSource> { UserListRemoteDataSource(get(),get()) }
     factory<IChatRemoteDataSource> { ChatRemoteDataSource(get(),get()) }
     factory<IUserRepository> { UserRepository(get(),get(),get()) }
     factory<IRegisterRepository> { RegisterRepository(get()) }
     factory<IUserListRepository> { UserListRepository(get()) }
     factory<IChatRepository> { ChatRepository(get()) }
+}
+
+fun provideFirebaseStorage():FirebaseStorage{
+    return Firebase.storage
 }
 
 fun provideFirebase():FirebaseAuth{
