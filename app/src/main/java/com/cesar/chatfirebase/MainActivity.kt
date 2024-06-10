@@ -7,15 +7,23 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.Observer
 import androidx.navigation.compose.rememberNavController
 import com.cesar.chatfirebase.presentation.navigation.SetupNavGraph
 import com.cesar.chatfirebase.ui.theme.ChatFirebaseTheme
 import com.cesar.chatfirebase.viewModel.EditUserViewModel
-import com.cesar.chatfirebase.viewModel.LoginViewModel
+import com.cesar.data.system.ConnectionState
 import com.cesar.domain.model.User
+import com.cesar.domain.repository.IChatRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import org.koin.android.ext.android.inject
+import kotlin.coroutines.CoroutineContext
 
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +31,10 @@ class MainActivity : ComponentActivity() {
     val firebaseAuth: FirebaseAuth by inject()
     private val preferences: SharedPreferences by inject()
     private val viewModel: EditUserViewModel by inject()
+    private val repository: IChatRepository by inject()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val coroutineContext: CoroutineContext = newSingleThreadContext("back") // for example
+    private val scope = CoroutineScope(coroutineContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +75,21 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         updateOnline(true)
+        val connectionLiveData = ConnectionState(this@MainActivity)
+        connectionLiveData.observe(this, Observer {
+           if (it){
+               val user = Gson().fromJson(preferences.getString("USER",""), User::class.java)
+               if (user!=null){
+                   scope.launch(Dispatchers.IO) {
+                       val messagesPending =  repository.getListPendingMessage(user.id?:"")
+                       if (messagesPending.isNotEmpty()){
+                               repository.sendPendingMessage(messagesPending).collect{ result->
+                               }
+                       }
+                   }
+               }
+           }
+        })
     }
 
     override fun onStop() {

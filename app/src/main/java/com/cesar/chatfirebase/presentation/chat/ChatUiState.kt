@@ -8,7 +8,11 @@ sealed class ChatUiState {
     data class Success(val message: String?): ChatUiState()
     data class SuccessGetMessage(val messageData: Message?): ChatUiState()
     data class SuccessGetOnlineByUser(val online: String?): ChatUiState()
-    data class SuccessGetListMessage(val listMessage: MutableList<Message>?): ChatUiState()
+    object SuccessGetListMessage: ChatUiState()
+    data class SuccessGetListMessageLocal(val listMessage: MutableList<Message>?): ChatUiState()
+
+    data class ErrorGetListMessage(val message: String): ChatUiState()
+
     data class Error(val message: String): ChatUiState()
     object Loading: ChatUiState()
     object Nothing: ChatUiState()

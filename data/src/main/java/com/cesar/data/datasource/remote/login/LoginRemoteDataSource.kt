@@ -1,10 +1,8 @@
-package com.example.data.datasource.remote.login
+package com.cesar.data.datasource.remote.login
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
 class LoginRemoteDataSource(private val auth: FirebaseAuth):ILoginRemoteDataSource {

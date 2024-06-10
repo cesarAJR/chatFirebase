@@ -1,16 +1,11 @@
 package com.cesar.chatfirebase.presentation.chat
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,15 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material.icons.sharp.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.simulateHotReload
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -54,7 +51,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -63,17 +61,12 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.cesar.chatfirebase.MainActivity
 import com.cesar.chatfirebase.R
-import com.cesar.chatfirebase.presentation.login.LoginUiState
 import com.cesar.chatfirebase.ui.theme.green
-import com.cesar.chatfirebase.presentation.userList.ItemUser
 import com.cesar.chatfirebase.viewModel.ChatViewModel
-import com.cesar.domain.model.Message
 import com.cesar.domain.model.User
 import com.example.prueba_softtek.component.DialogLoading
-import com.google.firebase.firestore.EventListener
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
 import org.koin.androidx.compose.koinViewModel
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -90,53 +83,89 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
     var online by remember {
         mutableStateOf("")
     }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(Unit){
-        viewModel.changeUserId("",user.id?:"")
+        viewModel.changeUserId((context as MainActivity).getUser()?.id?:"",user.id?:"")
         viewModel.getListMessage()
     }
 
     LaunchedEffect(Unit){
-       viewModel.getOnlineByUser()
-    }
-
-
-    LaunchedEffect(Unit){
         viewModel.uiState.collect{
-            when(it){
+          when (it) {
                 is ChatUiState.Error -> {
+                    loading = false
 
-                    loading =  false
                 }
+
                 is ChatUiState.Loading -> {
-
-                    loading =  true
+                    loading = true
                 }
+
                 is ChatUiState.Success -> {
-
+                    loading = false
                 }
+
                 is ChatUiState.Nothing -> {
 
                 }
 
                 is ChatUiState.SuccessGetMessage -> {
+                    loading = false
                     it.messageData?.let { it1 ->
-                        if (it1.message!=null)  viewModel.updateMessages(it1)
+                        if (it1.message != null) viewModel.updateMessages(it1)
                     }
+                }
+
+                is ChatUiState.SuccessGetListMessageLocal -> {
+                    if ((it.listMessage?.size ?: 0) > 0) {
+                        viewModel.updateListMessages(it.listMessage!!)
+                    }
+                }
+
+                is ChatUiState.SuccessGetOnlineByUser -> {
+                    loading = false
+                    it.online?.let { it1 ->
+                        online = it1
+                    }
+                }
+
+                is ChatUiState.ErrorGetListMessage -> {
+                    loading = false
                 }
 
                 is ChatUiState.SuccessGetListMessage -> {
-                    loading =  false
-                    if ((it.listMessage?.size ?: 0) > 0){
-                        viewModel.updateListMessages(it.listMessage!!)
-                    }
+                    loading = false
+                    viewModel.getListMessageLocal()
+                    viewModel.getOnlineByUser()
                     viewModel.getMessage()
                 }
+          }
+        }
+    }
 
-                is ChatUiState.SuccessGetOnlineByUser ->{
+    LaunchedEffect(Unit) {
+        viewModel.ui2State.collect {
+            when (it) {
+                is GetOnlineState.Nothing -> {
+
+                }
+                is GetOnlineState.SuccessGetOnlineByUser -> {
                     it.online?.let { it1 ->
-                        online= it1
+                        online = it1
                     }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(stateElements.messages.size) {
+        if (!listState.isScrolledToTheEnd()) {
+            val itmIndex = listState.layoutInfo.totalItemsCount - 1
+            if (itmIndex >= 0) {
+                val lastItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                lastItem?.let {
+                    listState.animateScrollToItem(itmIndex, it.size + it.offset)
                 }
             }
         }
@@ -192,7 +221,9 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                         Column {
                             Text(
                                 text = user.name?:"",
-                                style = TextStyle(fontSize = 22.sp)
+                                style = TextStyle(fontSize = 22.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             Spacer(modifier = Modifier.height(5.dp))
                             if (online.isNotEmpty()){
@@ -236,8 +267,8 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                     val (textField,icon) = createRefs()
                     OutlinedTextField(
                         value = stateElements.message,
-                        onValueChange = {
-                            viewModel.changeMessage(it)
+                        onValueChange = {value->
+                            viewModel.changeMessage(value)
                         },
                         modifier = Modifier.constrainAs(textField){
                             bottom.linkTo(parent.bottom)
@@ -246,6 +277,11 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                             start.linkTo(parent.start)
                             width= Dimension.fillToConstraints
                         },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                        keyboardActions = KeyboardActions(onSend ={
+                            viewModel.sendMessage()
+                            keyboardController?.hide()
+                        }),
                         colors = TextFieldDefaults.textFieldColors(
                             containerColor = Color.Gray
                         ),
@@ -277,14 +313,17 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
                 }
 
                 LazyColumn(
-                    modifier = Modifier.constrainAs(lazyColumn){
-                        bottom.linkTo(layout.top)
-                        top.linkTo(parent.top)
-                        end.linkTo(parent.end)
-                        start.linkTo(parent.start)
-                        width= Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    }.padding(top = 10.dp, start = 10.dp, end = 10.dp)
+                    state = listState,
+                    modifier = Modifier
+                        .constrainAs(lazyColumn) {
+                            bottom.linkTo(layout.top)
+                            top.linkTo(parent.top)
+                            end.linkTo(parent.end)
+                            start.linkTo(parent.start)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        }
+                        .padding(top = 10.dp, start = 10.dp, end = 10.dp)
                 ) {
                     stateElements.messages?.let {messages->
                         items(messages){message->
@@ -297,91 +336,10 @@ fun ChatScreen(viewModel:ChatViewModel= koinViewModel(),user: User,onUserList:()
         }
     }
 }
-
-@Composable
-fun ItemMessage(message: Message){
-        Column {
-            ConstraintLayout(
-                Modifier.fillMaxWidth()
-            ) {
-                val (layout1,layout2) = createRefs()
-
-                if (message.fromUserId.equals((LocalContext.current as MainActivity).firebaseAuth.uid)){
-                    Surface(
-                        modifier = Modifier
-                            .constrainAs(layout1) {
-                                top.linkTo(parent.top)
-                                end.linkTo(parent.end)
-                                width = Dimension.fillToConstraints
-                            }
-                            .padding(start = 50.dp),
-                        shape = RoundedCornerShape(10.dp,),
-                        color = Color(android.graphics.Color.parseColor("#6EAA5E"))
-                    ) {
-                        ConstraintLayout(
-                            Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
-                        ) {
-                            val (textMessage,textHour) = createRefs()
-                            Text(
-                                modifier = Modifier.constrainAs(textMessage){
-                                    top.linkTo(parent.top)
-                                    end.linkTo(parent.end)
-                                    width= Dimension.fillToConstraints
-                                },
-                                style = TextStyle(color=Color.White, fontSize = 18.sp),
-                                text = message.message?:""
-                            )
-                            Text(
-                                modifier = Modifier.constrainAs(textHour){
-                                    top.linkTo(textMessage.bottom)
-                                    end.linkTo(parent.end)
-                                    width= Dimension.fillToConstraints
-                                },
-                                style = TextStyle(color=Color(android.graphics.Color.parseColor("#BDC3C7")), fontSize = 12.sp),
-                                text = message.hour?:""
-                            )
-                        }
-                    }
-                }else{
-                    Surface(
-                        modifier = Modifier
-                            .constrainAs(layout2) {
-                                top.linkTo(parent.top)
-                                start.linkTo(parent.start)
-                                width = Dimension.fillToConstraints
-                            }
-                            .padding(end = 50.dp),
-                        shape = RoundedCornerShape(10.dp,),
-                        color = Color(android.graphics.Color.parseColor("#1A5276"))
-                    ) {
-                        ConstraintLayout(
-                            Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
-                        ) {
-                            val (textMessage,textHour) = createRefs()
-                            Text(
-                                modifier = Modifier.constrainAs(textMessage){
-                                    top.linkTo(parent.top)
-                                    start.linkTo(parent.start)
-                                    width= Dimension.fillToConstraints
-                                },
-                                style = TextStyle(color=Color.White, fontSize = 18.sp),
-                                text = message.message?:""
-                            )
-                            Text(
-                                modifier = Modifier.constrainAs(textHour){
-                                    top.linkTo(textMessage.bottom)
-                                    end.linkTo(parent.end)
-                                    width= Dimension.fillToConstraints
-                                },
-                                style = TextStyle(color=Color(android.graphics.Color.parseColor("#BDC3C7")), fontSize = 12.sp),
-                                text = message.hour?:""
-                            )
-                        }
-                    }
-                }
-
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-        }
+fun LazyListState.isScrolledToTheEnd() : Boolean {
+    val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()
+    return lastItem == null || lastItem.size + lastItem.offset <= layoutInfo.viewportEndOffset
 }
+
+
 

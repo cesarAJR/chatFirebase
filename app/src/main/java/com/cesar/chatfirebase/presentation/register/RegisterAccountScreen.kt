@@ -95,7 +95,7 @@ fun RegisterAccountScreen(viewModel: RegisterViewModel = koinViewModel(), onLogi
            .fillMaxSize()
            .paint(
                painterResource(id = R.drawable.back_login),
-               contentScale = ContentScale.FillHeight
+               contentScale = ContentScale.FillBounds
            ),
    ) {
        IconButton(

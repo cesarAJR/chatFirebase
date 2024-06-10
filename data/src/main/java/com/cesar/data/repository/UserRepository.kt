@@ -1,11 +1,14 @@
-package com.example.prueba_softtek.data.repository
+package com.cesar.data.repository
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import com.cesar.data.datasource.remote.login.ILoginRemoteDataSource
+import com.cesar.data.datasource.remote.register.IRegisterRemoteDataSource
+import com.cesar.data.util.isConnected
 import com.cesar.domain.model.User
 import com.cesar.domain.repository.IUserRepository
-import com.example.data.datasource.remote.login.ILoginRemoteDataSource
-import com.example.data.datasource.remote.login.IRegisterRemoteDataSource
+
 import com.example.domain.core.Result
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -14,18 +17,24 @@ import kotlinx.coroutines.flow.flow
 
 class UserRepository (private val loginRemoteDataSource: ILoginRemoteDataSource,
                       private val registerRemoteDataSource: IRegisterRemoteDataSource,
-                      private val sharedPreferences: SharedPreferences
+                      private val sharedPreferences: SharedPreferences,
+                      private val context: Context
 ) : IUserRepository {
     private val message = MutableStateFlow("")
     override suspend fun login(email: String, password: String): Flow<Result<String>> = flow{
-        try {
-            loginRemoteDataSource.login(email,password)
-            val user = registerRemoteDataSource.validateEmailInBD(email)
-            sharedPreferences.edit().putString("USER",Gson().toJson(user)).apply()
-            emit(Result.Successfull("login exitoso"))
-        }catch (e:Exception){
-            emit(Result.Error(e.message?:""))
+        if (isConnected(context)){
+            try {
+                loginRemoteDataSource.login(email,password)
+                val user = registerRemoteDataSource.validateEmailInBD(email)
+                sharedPreferences.edit().putString("USER",Gson().toJson(user)).apply()
+                emit(Result.Successfull("login exitoso"))
+            }catch (e:Exception){
+                emit(Result.Error(e.message?:""))
+            }
+        }else{
+            emit(Result.Error("No cuenta con conexion a internet"))
         }
+
     }
 
     override suspend fun logout(): Flow<Result<String>> = flow{
@@ -42,24 +51,29 @@ class UserRepository (private val loginRemoteDataSource: ILoginRemoteDataSource,
     }
 
     override suspend fun loginGoogle(token: String): Flow<Result<String>> = flow{
-        try {
-            val result = loginRemoteDataSource.loginGoogle(token)
-            val user = registerRemoteDataSource.validateEmailInBD(result!!.user?.email?:"")
-            if (user==null){
-                val email = result.user?.email?:""
-                val name = result.user?.displayName?:""
-                registerRemoteDataSource.registerBD(email,name,result.user?.uid?:"",message)
-                val user = registerRemoteDataSource.validateEmailInBD(result.user?.email?:"")
-                sharedPreferences.edit().putString("USER",Gson().toJson(user)).apply()
-                emit(Result.Successfull("login exitoso"))
-            }else{
-                sharedPreferences.edit().putString("USER", Gson().toJson(user)).apply()
-                emit(Result.Successfull("login exitoso"))
+        if (isConnected(context)){
+            try {
+                val result = loginRemoteDataSource.loginGoogle(token)
+                val user = registerRemoteDataSource.validateEmailInBD(result!!.user?.email?:"")
+                if (user==null){
+                    val email = result.user?.email?:""
+                    val name = result.user?.displayName?:""
+                    registerRemoteDataSource.registerBD(email,name,result.user?.uid?:"",message)
+                    val userValidate = registerRemoteDataSource.validateEmailInBD(result.user?.email?:"")
+                    sharedPreferences.edit().putString("USER",Gson().toJson(userValidate)).apply()
+                    emit(Result.Successfull("login exitoso"))
+                }else{
+                    sharedPreferences.edit().putString("USER", Gson().toJson(user)).apply()
+                    emit(Result.Successfull("login exitoso"))
+                }
+            }catch (e:Exception){
+                loginRemoteDataSource.logout()
+                sharedPreferences.edit().putString("USER",null).apply()
+                emit(Result.Error(e.message?:""))
             }
-        }catch (e:Exception){
-            loginRemoteDataSource.logout()
-            sharedPreferences.edit().putString("USER",null).apply()
-            emit(Result.Error(e.message?:""))
+        }else{
+            emit(Result.Error("No cuenta con conexion a internet"))
         }
+
     }
 }

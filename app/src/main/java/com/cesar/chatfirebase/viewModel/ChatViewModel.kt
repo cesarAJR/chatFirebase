@@ -1,16 +1,17 @@
 package com.cesar.chatfirebase.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cesar.chatfirebase.presentation.chat.ChatElements
+import com.cesar.chatfirebase.presentation.chat.GetOnlineState
 import com.cesar.chatfirebase.presentation.chat.ChatUiState
 import com.cesar.domain.model.Message
 import com.cesar.domain.useCase.chat.IChatUserCase
 import com.cesar.domain.useCase.getListMessage.IGetListMessageCase
+import com.cesar.domain.useCase.getListMessage.IGetListMessageLocalCase
 import com.cesar.domain.useCase.getMessage.IGetMessageCase
 import com.cesar.domain.useCase.getOnlineByUser.IGetOnlineByUser
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +23,14 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
                     private val getMessageCase: IGetMessageCase,
                     private val getListMessageCase: IGetListMessageCase,
                     private val getOnlineByUser: IGetOnlineByUser,
+                    private val getListMessageLocalCase: IGetListMessageLocalCase
 ):ViewModel() {
+
     private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Nothing)
     val uiState: StateFlow<ChatUiState> = _uiState
+
+    private val _ui2State = MutableStateFlow<GetOnlineState>(GetOnlineState.Nothing)
+    val ui2State: StateFlow<GetOnlineState> = _ui2State
 
 
     var stateElements by mutableStateOf(ChatElements())
@@ -62,8 +68,6 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
                 chatUserCase.execute(stateElements.fromUserId,stateElements.toUserId,stateElements.message)
                     .collect { r ->
                         changeMessage("")
-                        if (r.message!=null) _uiState.value = ChatUiState.Error(r.message!!)
-                        else _uiState.value = ChatUiState.Success(r.data)
                     }
             }
         }
@@ -73,10 +77,6 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
         viewModelScope.launch(Dispatchers.IO) {
             getMessageCase.execute(stateElements.toUserId)
                 .collect { r ->
-                    if (r.message!=null) _uiState.value = ChatUiState.Error(r.message!!)
-                    else {
-                       _uiState.value = ChatUiState.SuccessGetMessage(r.data)
-                    }
                 }
         }
     }
@@ -86,9 +86,18 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
             _uiState.value = ChatUiState.Loading
             getListMessageCase.execute(stateElements.toUserId)
                 .collect { r ->
+                    _uiState.value = ChatUiState.SuccessGetListMessage
+                }
+        }
+    }
+
+    fun getListMessageLocal(){
+        viewModelScope.launch(Dispatchers.IO) {
+            getListMessageLocalCase.execute(stateElements.toUserId)
+                .collect { r ->
                     if (r.message!=null) _uiState.value = ChatUiState.Error(r.message!!)
                     else {
-                        _uiState.value = ChatUiState.SuccessGetListMessage(r.data)
+                        _uiState.value = ChatUiState.SuccessGetListMessageLocal(r.data)
                     }
                 }
         }
@@ -98,9 +107,9 @@ class ChatViewModel(private val chatUserCase: IChatUserCase,
         viewModelScope.launch(Dispatchers.IO) {
             getOnlineByUser.execute(stateElements.toUserId)
                 .collect { r ->
-                    if (r.message!=null && r.message!!.isNotEmpty()) _uiState.value = ChatUiState.Nothing
+                    if (r.message!=null && r.message!!.isNotEmpty()) _ui2State.value = GetOnlineState.Nothing
                     else {
-                        _uiState.value = ChatUiState.SuccessGetOnlineByUser(r.data)
+                        _ui2State.value = GetOnlineState.SuccessGetOnlineByUser(r.data)
                     }
                 }
         }

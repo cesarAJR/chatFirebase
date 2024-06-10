@@ -1,41 +1,36 @@
-package com.example.data.datasource.remote.login
+package com.cesar.data.datasource.remote.chat
+
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.cesar.data.datasource.remote.chat.IChatRemoteDataSource
+import com.cesar.data.remote.model.toMessage
 import com.cesar.data.remote.model.toMessageList
 import com.cesar.domain.model.Message
 import com.cesar.domain.model.User
-import com.example.domain.core.Result
-import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.snapshots
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import kotlin.math.log
+import java.util.concurrent.Flow
 
 class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val sharedPreferences: SharedPreferences):IChatRemoteDataSource {
     override suspend fun sendMessage(
-        fromUserId: String,
         toUserId: String,
-        message: String
-    ): String {
+        message: String,
+        isConnected:Boolean,
+        flow: MutableStateFlow<Message>
+    ): StateFlow<Message> {
+        val messageId = UUID.randomUUID().toString()
         val formatterHour = DateTimeFormatter.ofPattern("hh:mm a")
         val currentHour = LocalDateTime.now().format(formatterHour)
 
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
         val current = LocalDateTime.now().format(formatter)
-
-
 
         val from = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java).id
 
@@ -45,107 +40,143 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
             "toUserId" to toUserId,
             "dateTime" to current,
             "hour" to currentHour,
-            "messageId" to UUID.randomUUID().toString()
+            "messageId" to messageId
         )
 
-       val docFT =  firebaseBD.collection("messages")
-           .document("$from-$toUserId")
-            .get()
-           .await()
-        if (docFT.data?.get("users")!=null){
-            firebaseBD.collection("messages")
+        val messageData = Message(
+            message = message,
+            fromUserId = from,
+            toUserId=toUserId,
+            hour = currentHour,
+            messageId = messageId,
+            dateTime = current
+        )
+        if (isConnected){
+            val docFT =  firebaseBD.collection("messages")
                 .document("$from-$toUserId")
-                .collection("messages")
-                .add(data)
-        }else{
-            val docTF =  firebaseBD.collection("messages")
-                .document("$toUserId-$from")
                 .get()
                 .await()
-            if (docTF.data?.get("users")!=null){
-            firebaseBD.collection("messages")
-                    .document("$toUserId-$from")
-                    .collection("messages")
-                    .add(data)
-            }else{
-                val users = mutableListOf(from!!,toUserId)
-
-                val members = hashMapOf(
-                    "users" to users,
-                )
-
-                 firebaseBD.collection("messages")
-                        .document("$from-$toUserId")
-                        .set(members)
-
+            if (docFT.data?.get("users")!=null){
+                data["chatId"] = "$from-$toUserId"
+                messageData.chatId = "$from-$toUserId"
                 firebaseBD.collection("messages")
                     .document("$from-$toUserId")
                     .collection("messages")
                     .add(data)
+                    .addOnSuccessListener {
+                        messageData.pendingSync = false
+                        flow.value = messageData
 
+                    }.addOnFailureListener {
+                        messageData.pendingSync = true
+                        flow.value = messageData
+                    }
+            }else{
+                val docTF =  firebaseBD.collection("messages")
+                    .document("$toUserId-$from")
+                    .get()
+                    .await()
+                if (docTF.data?.get("users")!=null){
+                    data["chatId"] = "$toUserId-$from"
+                    messageData.chatId = "$toUserId-$from"
+                    firebaseBD.collection("messages")
+                        .document("$toUserId-$from")
+                        .collection("messages")
+                        .add(data)
+                        .addOnSuccessListener {
+                            messageData.pendingSync = false
+                            flow.value = messageData
+                        }.addOnFailureListener {
+                            messageData.pendingSync = true
+                            flow.value = messageData
+                        }
+                }else{
+                    val users = mutableListOf(from!!,toUserId)
+
+                    val members = hashMapOf(
+                        "users" to users,
+                    )
+                    firebaseBD.collection("messages")
+                        .document("$from-$toUserId")
+                        .set(members)
+                        .addOnSuccessListener {
+                            data["chatId"] = "$from-$toUserId"
+                            messageData.chatId = "$from-$toUserId"
+                            firebaseBD.collection("messages")
+                                .document("$from-$toUserId")
+                                .collection("messages")
+                                .add(data)
+                                .addOnSuccessListener {
+                                    messageData.pendingSync = false
+                                    flow.value = messageData
+                                }.addOnFailureListener {
+                                    messageData.pendingSync = true
+                                    flow.value = messageData
+                                }
+                        }.addOnFailureListener {
+                            messageData.pendingSync = true
+                            flow.value = messageData
+                        }
+                }
             }
+        }else{
+            messageData.pendingSync = true
+            flow.value=messageData
         }
-        return ""
+
+
+        return flow
     }
 
     override suspend fun getMessage(
         toUserId: String,
+        isConnected: Boolean,
         flow: MutableStateFlow<Message>
     ): StateFlow<Message> {
-
+       var i=0
     val from = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java).id
-
       val queryToFrom = firebaseBD.collection("messages")
             .document("$toUserId-$from")
             .collection("messages")
             .orderBy("dateTime",Query.Direction.DESCENDING)
             .limit(1)
-
     val queryFromTo = firebaseBD.collection("messages")
             .document("$from-$toUserId")
             .collection("messages")
             .orderBy("dateTime",Query.Direction.DESCENDING)
             .limit(1)
-
-        queryToFrom?.addSnapshotListener { snapshot, e ->
+        queryToFrom.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 return@addSnapshotListener
             }
 
             if (snapshot != null) {
                 snapshot.forEach {
-                    val message = Message(
-                        message = it.data.get("message").toString(),
-                        fromUserId = it.data.get("fromUserId").toString(),
-                        toUserId = it.data.get("toUserId").toString(),
-                        hour = it.data.get("hour").toString(),
-                        messageId = it.data?.get("messageId").toString(),
-                    )
-                    flow.value = message
+                    val message = it.toMessage()
+                    if (i>0){
+                        flow.value = message
+                    }
+                    i++
                 }
             } else {
             }
         }
+        queryFromTo.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
 
-        queryFromTo?.addSnapshotListener { snapshot, e ->
-          if (e != null) {
-              return@addSnapshotListener
-          }
-
-          if (snapshot != null) {
-              snapshot.forEach {
-                  val message = Message(
-                      message = it.data.get("message").toString(),
-                      fromUserId = it.data.get("fromUserId").toString(),
-                      toUserId = it.data.get("toUserId").toString(),
-                      hour = it.data.get("hour").toString(),
-                      messageId = it.data?.get("messageId").toString(),
-                  )
-                  flow.value = message
-              }
-          } else {
-          }
-      }
+            if (snapshot != null) {
+                snapshot.forEach {
+                    val message = it.toMessage()
+                    if (i>0){
+                        flow.value = message
+                    }
+                    i++
+                }
+            } else {
+            }
+        }
 
         return flow
     }
@@ -154,7 +185,6 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
         val from = Gson().fromJson(sharedPreferences.getString("USER",""), User::class.java).id
 
         var docRef:Query?=null
-
         val docFT =  firebaseBD.collection("messages")
             .document("$from-$toUserId")
             .get().await()
@@ -204,5 +234,113 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
         }
         return flow
     }
+
+    override suspend fun sendPendingMessage(
+        message: Message,
+        flow: MutableStateFlow<Message>
+    ): StateFlow<Message> {
+
+        val data = hashMapOf(
+            "fromUserId" to message.fromUserId,
+            "message" to message.message,
+            "toUserId" to message.toUserId,
+            "dateTime" to message.dateTime,
+            "hour" to message.hour,
+            "messageId" to message.messageId,
+        )
+
+        if (message.chatId!=null && message.chatId!!.isNotEmpty()){
+            data["chatId"] = message.chatId
+            firebaseBD.collection("messages")
+                .document(message.chatId!!)
+                .collection("messages")
+                .add(data)
+                .addOnSuccessListener {
+                    message.pendingSync = false
+                    flow.value = message
+                }.addOnFailureListener {
+                    message.pendingSync = true
+                    flow.value = message
+                }
+        }else{
+            val from = message.fromUserId
+            val toUserId = message.toUserId
+            return sendAndValidateMessage(from?:"",toUserId?:"",message,data,flow)
+        }
+
+        return  flow
+    }
+
+   private suspend fun sendAndValidateMessage(from:String, toUserId:String,message: Message,data:HashMap<String,String?>,flow: MutableStateFlow<Message>):StateFlow<Message>{
+        val docFT =  firebaseBD.collection("messages")
+            .document("$from-$toUserId")
+            .get()
+            .await()
+        if (docFT.data?.get("users")!=null){
+            data["chatId"] = "$from-$toUserId"
+            message.chatId = "$from-$toUserId"
+            firebaseBD.collection("messages")
+                .document("$from-$toUserId")
+                .collection("messages")
+                .add(data)
+                .addOnSuccessListener {
+                    message.pendingSync = false
+                    flow.value = message
+
+                }.addOnFailureListener {
+                    message.pendingSync = true
+                    flow.value = message
+                }
+        }else{
+            val docTF =  firebaseBD.collection("messages")
+                .document("$toUserId-$from")
+                .get()
+                .await()
+            if (docTF.data?.get("users")!=null){
+                data["chatId"] = "$toUserId-$from"
+                message.chatId = "$toUserId-$from"
+                firebaseBD.collection("messages")
+                    .document("$toUserId-$from")
+                    .collection("messages")
+                    .add(data)
+                    .addOnSuccessListener {
+                        message.pendingSync = false
+                        flow.value = message
+                    }.addOnFailureListener {
+                        message.pendingSync = true
+                        flow.value = message
+                    }
+            }else{
+                val users = mutableListOf(from!!,toUserId)
+
+                val members = hashMapOf(
+                    "users" to users,
+                )
+                firebaseBD.collection("messages")
+                    .document("$from-$toUserId")
+                    .set(members)
+                    .addOnSuccessListener {
+                        data["chatId"] = "$from-$toUserId"
+                        message.chatId = "$from-$toUserId"
+                        firebaseBD.collection("messages")
+                            .document("$from-$toUserId")
+                            .collection("messages")
+                            .add(data)
+                            .addOnSuccessListener {
+                                message.pendingSync = false
+                                flow.value = message
+                            }.addOnFailureListener {
+                                message.pendingSync = true
+                                flow.value = message
+                            }
+                    }.addOnFailureListener {
+                        message.pendingSync = true
+                        flow.value = message
+                    }
+            }
+        }
+       return flow
+    }
+
 
 }

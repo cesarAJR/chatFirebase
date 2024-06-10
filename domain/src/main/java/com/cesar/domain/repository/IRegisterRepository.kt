@@ -1,9 +1,8 @@
 package com.cesar.domain.repository
 
-import android.net.Uri
 import com.cesar.domain.model.User
-import kotlinx.coroutines.flow.Flow
 import com.example.domain.core.Result
+import kotlinx.coroutines.flow.Flow
 
 interface IRegisterRepository {
 

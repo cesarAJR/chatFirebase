@@ -112,7 +112,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), onRegisterUser:()->
             .fillMaxSize()
             .paint(
                 painterResource(id = R.drawable.back_login),
-                contentScale = ContentScale.FillHeight
+                contentScale = ContentScale.FillBounds
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

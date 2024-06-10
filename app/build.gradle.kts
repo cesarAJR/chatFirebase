@@ -97,4 +97,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation ("com.google.guava:guava:31.0.1-android")
     implementation("androidx.compose.material3:material3:1.2.1")
+
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation ("org.mockito:mockito-core:2.11.0")
 }

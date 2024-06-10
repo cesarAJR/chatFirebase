@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -71,6 +72,8 @@ fun EditUserScreen(viewModel: EditUserViewModel = koinViewModel(),navController:
     val user = (LocalContext.current as MainActivity).getUser()
     val stateElements = viewModel.stateElements
 
+
+
     val userLabel by remember {
         mutableStateOf("")
     }
@@ -79,13 +82,15 @@ fun EditUserScreen(viewModel: EditUserViewModel = koinViewModel(),navController:
         mutableStateOf<Boolean>(false)
     }
 
+    var colorTextView = if (isSystemInDarkTheme()) Color.White  else Color.Black
+
     val interactionSourceUser = remember { MutableInteractionSource() }
     val isFocusedUser by interactionSourceUser.collectIsFocusedAsState()
 
     val IndicatorUnfocusedWidth = 1.dp
     val IndicatorFocusedWidth = 3.dp
     val TextFieldPadding = 16.dp
-    val indicatorColor = Color.Black
+    val indicatorColor = colorTextView
     val indicatorWidthUser = if (isFocusedUser) IndicatorFocusedWidth else IndicatorUnfocusedWidth
     val fontSizeLabelUser = if (isFocusedUser || userLabel.isNotEmpty()) 12.sp else 18.sp
 
@@ -278,7 +283,7 @@ fun EditUserScreen(viewModel: EditUserViewModel = koinViewModel(),navController:
                     enabled = true,
                     interactionSource = interactionSourceUser,
                     textStyle = TextStyle(
-                        color = Color.Black,
+                        color = colorTextView,
                         fontSize = 18.sp
                     ),
                     colors = TextFieldDefaults.textFieldColors(
@@ -290,7 +295,7 @@ fun EditUserScreen(viewModel: EditUserViewModel = koinViewModel(),navController:
                     label = {
                         Text(
                             text = "Nombre",
-                            color = Color.Black,
+                            color = colorTextView,
                             fontSize = fontSizeLabelUser
                         )
                     },

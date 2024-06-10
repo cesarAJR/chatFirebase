@@ -4,7 +4,9 @@ import com.cesar.domain.useCase.chat.IChatUserCase
 import com.cesar.domain.useCase.editUser.EditUserCase
 import com.cesar.domain.useCase.editUser.IEditUserCase
 import com.cesar.domain.useCase.getListMessage.GetListMessageCase
+import com.cesar.domain.useCase.getListMessage.GetListMessageLocalCase
 import com.cesar.domain.useCase.getListMessage.IGetListMessageCase
+import com.cesar.domain.useCase.getListMessage.IGetListMessageLocalCase
 import com.cesar.domain.useCase.getMessage.GetMessageCase
 import com.cesar.domain.useCase.getMessage.IGetMessageCase
 import com.cesar.domain.useCase.getOnlineByUser.GetOnlineByUser
@@ -30,7 +32,8 @@ val domainModule = module {
     factory <IGetMessageCase>{ GetMessageCase(get())}
     factory <ILogoutCase>{ LogoutCase(get())}
     factory <ILoginGoogleCase>{ LoginGoogleCase(get())}
-    factory <IGetListMessageCase>{ GetListMessageCase(get())}
+    factory <IGetListMessageLocalCase>{ GetListMessageLocalCase(get())}
+    factory <IGetListMessageCase>{ GetListMessageCase(get()) }
     factory <IEditUserCase>{ EditUserCase(get())}
     factory <IGetOnlineByUser>{ GetOnlineByUser(get())}
 }
