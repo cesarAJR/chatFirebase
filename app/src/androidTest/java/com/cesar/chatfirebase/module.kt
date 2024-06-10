@@ -25,7 +25,7 @@ val moduleTest = module {
     single { provideFirebaseBD() }
     single { provideFirebaseStorage() }
     factory<IRegisterRemoteDataSource> { RegisterRemoteDataSource(get(),get(),get(),get()) }
-    factory<IRegisterRepository> { RegisterRepository(get()) }
+    factory<IRegisterRepository> { RegisterRepository(get(),get()) }
     factory <IRegisterUserCase>{ RegisterUserCase(get()) }
 }
 
