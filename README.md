@@ -17,6 +17,7 @@ Tecnología usadas:
 * Firebase Authentication
 * Firestore Database
 * Firebase Storage
+* Room
 * Git
 
 
