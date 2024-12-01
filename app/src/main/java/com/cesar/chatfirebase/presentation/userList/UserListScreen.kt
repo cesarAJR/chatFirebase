@@ -14,10 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.sharp.Add
 import androidx.compose.material.icons.sharp.ExitToApp
 import androidx.compose.material.icons.sharp.Refresh
 import androidx.compose.material.icons.sharp.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -48,7 +50,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserListScreen(viewModel: UserListViewModel = koinViewModel(),onChat:(User)->Unit,onLogin:()->Unit,onSetting:()->Unit) {
+fun UserListScreen(viewModel: UserListViewModel = koinViewModel(),onChat:(User)->Unit,onLogin:()->Unit,onSetting:()->Unit,onCreateGroup:()->Unit) {
     val context = LocalContext.current
 
     val stateRefresh = rememberPullToRefreshState()
@@ -121,6 +123,9 @@ fun UserListScreen(viewModel: UserListViewModel = koinViewModel(),onChat:(User)-
 
                 }
             )
+        },
+        floatingActionButton = {
+          CustomFloatingActionButton(true,onCreateGroup)
         }
     ) {
         Surface(modifier = Modifier
@@ -144,7 +149,6 @@ fun UserListScreen(viewModel: UserListViewModel = koinViewModel(),onChat:(User)-
                     state = stateRefresh,
                 )
             }
-
         }
     }
 

@@ -15,6 +15,7 @@ import com.cesar.domain.useCase.getListMessage.IGetListMessageLocalCase
 import com.cesar.domain.useCase.getMessage.IGetMessageCase
 import com.cesar.domain.useCase.getOnlineByUser.IGetOnlineByUser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

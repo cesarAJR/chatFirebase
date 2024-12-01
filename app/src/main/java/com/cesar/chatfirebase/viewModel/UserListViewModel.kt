@@ -8,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.cesar.chatfirebase.presentation.login.LoginElements
 import com.cesar.chatfirebase.presentation.userList.UserListElements
 import com.cesar.chatfirebase.presentation.userList.UserListUiState
+import com.cesar.data.repository.UserListRepository
+import com.cesar.data.repository.UserRepository
 import com.cesar.domain.model.User
 import com.cesar.domain.useCase.logout.ILogoutCase
 import com.cesar.domain.useCase.userList.IUserListCase
+import com.cesar.domain.useCase.userList.UserListCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

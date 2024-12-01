@@ -206,7 +206,6 @@ class ChatRemoteDataSource(private val firebaseBD: FirebaseFirestore,private val
 
             }
         }
-
        val result = docRef?.get()?.await()
         return if (result?.documents!=null){
             result.documents!!.toMessageList().toMutableList()

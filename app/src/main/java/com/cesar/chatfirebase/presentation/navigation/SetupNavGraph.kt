@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.cesar.chatfirebase.presentation.camera.CameraScreen
 import com.cesar.chatfirebase.presentation.chat.ChatScreen
+import com.cesar.chatfirebase.presentation.createGroup.CreateGroupScreen
 import com.cesar.chatfirebase.presentation.editUser.EditUserScreen
 import com.cesar.chatfirebase.presentation.login.LoginScreen
 import com.cesar.chatfirebase.presentation.register.RegisterAccountScreen
@@ -81,6 +82,9 @@ fun SetupNavGraph(navController: NavHostController,isLogged : Boolean) {
                 },
                 onSetting = {
                     navController.navigate(Screen.Setting.route)
+                },
+                onCreateGroup = {
+                    navController.navigate(Screen.CreateGroup.route)
                 }
             )
         }
@@ -137,6 +141,15 @@ fun SetupNavGraph(navController: NavHostController,isLogged : Boolean) {
                     navController.popBackStack()
                 }
             )
+        }
+
+        composable(
+            route = Screen.CreateGroup.route,
+            enterTransition = { enterTransition(this) },
+            exitTransition = { exitTransition(this) },
+            popEnterTransition = {popEnterTransition(this)}
+        ) {
+            CreateGroupScreen()
         }
     }
 }

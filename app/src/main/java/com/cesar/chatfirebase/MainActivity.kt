@@ -36,6 +36,10 @@ class MainActivity : ComponentActivity() {
     private val coroutineContext: CoroutineContext = newSingleThreadContext("back") // for example
     private val scope = CoroutineScope(coroutineContext)
 
+    object cesar{
+        var apodo = "fer"
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
